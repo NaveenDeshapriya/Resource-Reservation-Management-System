@@ -49,7 +49,7 @@ export default function Dashboard() {
 
     const getActionRecervation = async (reservationNo: string) => {
         console.log(reservationNo);
-        
+
         const response = await fetch("/api/booking", {
             method: "POST",
             headers: {
@@ -70,6 +70,7 @@ export default function Dashboard() {
                 });
 
                 setShowToast(true);
+                getAllReservation();
 
 
             }
@@ -95,7 +96,7 @@ export default function Dashboard() {
             <h1 className="text-2xl p-2">Dashboard</h1>
 
 
-            <div>
+            <div className="w-full h-[90vh] ">
 
                 <div className="flex justify-between items-center mb-[4]">
                     <h3 className="ms-2">Latest Reservation</h3>
@@ -163,9 +164,11 @@ export default function Dashboard() {
 
                     </tbody>
                 </table>
-                {
-                    showToast ? <ToastBar closeToast={() => setShowToast(false)} color={toastDetails?.status ? "#9afc95":""} message={toastDetails?.message} visible={true} /> : <></>
-                }
+                <div className="flex justify-center items-center">
+                    {
+                        showToast ? <ToastBar closeToast={() => setShowToast(false)} color={toastDetails?.status ? "#9afc95" : ""} message={toastDetails?.message} visible={true} /> : <></>
+                    }
+                </div>
             </div>
         </div>
     );

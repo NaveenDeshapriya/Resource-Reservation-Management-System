@@ -95,7 +95,7 @@ export async function GET() {
     try {
 
         const result: QueryResult = await connection.
-            query("SELECT * FROM reservation INNER JOIN status ON status_id=id ORDER BY CASE type WHEN 'Booked' THEN 1 WHEN 'Confirm' THEN 2 WHEN 'Cancel' THEN 3 WHEN 'Finished' THEN 4 ELSE 5 END ASC");
+            query("SELECT * FROM reservation INNER JOIN status ON status_id=id ORDER BY CASE type WHEN 'Booked' THEN 1 WHEN 'Confirm' THEN 2 WHEN 'Finished' THEN 3 WHEN 'Cancel' THEN 4 ELSE 5 END ASC");
 
 
 
