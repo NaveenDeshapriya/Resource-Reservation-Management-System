@@ -6,7 +6,8 @@ export interface Reservation {
     detail: string,
     date: string,
     statusID:number,
-    status:string
+    status:string,
+    decideDate:string
 
 
 }

@@ -1,37 +1,20 @@
 'use client'
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Navbar from "../(components)/Navbar";
 import { ToastBar } from "../(components)/ToastBar";
-
-type props = {
-    status: boolean,
-    message: string
-}
+import { Toast } from "../util/toast";
 
 export default function Reservation() {
 
     const [firstname, setFirstName] = useState<string>("");
     const [lastname, setLastName] = useState<string>("");
     const [email, setEmail] = useState<string>("");
+    const [decideDate, setDecideDate] = useState<string>("");
     const [details, setDetails] = useState<string>("");
     const [reservationNo, setReservationNo] = useState<string>("-");
-    const [toastDetails, setToastDtails] = useState<props | null>(null);
+    const [toastDetails, setToastDtails] = useState<Toast | null>(null);
     const [showToast, setShowToast] = useState<boolean>(false);
-    const timmer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-
-    useEffect(() => {
-        timmer.current = setTimeout(() => {
-            setShowToast(false);
-    
-        }, 1200);
-        return () =>clearTimeout(timmer.current ? timmer.current : "");
-          
-
-    }, [showToast, toastDetails]);
-
-
- 
 
 
     const saveReservation = async () => {
@@ -44,6 +27,7 @@ export default function Reservation() {
                 firstname: firstname,
                 lastname: lastname,
                 email: email,
+                decideDate:decideDate,
                 details: details
             })
         });
@@ -61,7 +45,7 @@ export default function Reservation() {
 
                 setShowToast(true);
 
-         
+
             } else {
 
                 setToastDtails({
@@ -74,6 +58,8 @@ export default function Reservation() {
 
         }
     }
+
+
 
     return (
 
@@ -107,6 +93,11 @@ export default function Reservation() {
                     </div>
 
                     <div className="flex justify-between items-center">
+                        <label>Decide of date</label>
+                        <input type="date"  className=" outline-0 h-10 w-54 border-b border-gray-400" onChange={(e) => setDecideDate(e.target.value)} />
+                    </div>
+
+                    <div className="flex justify-between items-center">
                         <label>Details</label>
                         <textarea className=" outline-0 h-10 w-54 border-b border-gray-400 " onChange={(e) => setDetails(e.target.value)} />
                     </div>
@@ -116,7 +107,7 @@ export default function Reservation() {
 
 
                         <button className="text-md w-full h-11 bg-blue-950 text-white 
-                                           rounded-sm hover:bg-blue-900 cursor-pointer mt-5"
+                                           rounded-sm hover:bg-blue-900 cursor-pointer mt-5 active:translate-x-0.5 active:scale-95"
 
                             onClick={saveReservation}>Confirm Reservation</button>
                     </div>
@@ -126,7 +117,7 @@ export default function Reservation() {
 
 
                 {
-                    showToast ? <ToastBar color={toastDetails?.status ? "#9afc95" : "#ffa099"} message={toastDetails?.message} visible={true} /> : <></>
+                    showToast ? <ToastBar closeToast={() => setShowToast(false)} color={toastDetails?.status ? "#9afc95" : "#ffa099"} message={toastDetails?.message} visible={true} /> : <></>
                 }
 
 

@@ -1,11 +1,50 @@
-import BookLink from "./(components)/BookLink";
+'use client'
+import { useRouter } from "next/navigation";
 import Navbar from "./(components)/Navbar";
-
+import { useEffect, useState } from "react";
+import { Toast } from "./util/toast";
+import { ToastBar } from "./(components)/ToastBar";
 
 export default function Home() {
-  const bookAppointment = () => {
+
+  const router = useRouter();
+  const [toastDetails, setToastDtails] = useState<Toast | null>(null);
+  const [showToast, setShowToast] = useState<boolean>(false);
+
+  const [currentDate, setCurrentDate] = useState("");
+
+ 
+
+  const checkReservationAvailable = async () => {
+    const response = await fetch("/api/booking");
+
+    if (response.ok) {
+
+      const json = await response.json();
+
+      if (json.status) {
+
+        router.push("/reservation");
+
+      } else {
+
+        setToastDtails({
+          status: json.status,
+          message: json.message
+        });
+
+        setShowToast(true);
+
+      }
+
+
+    }
 
   }
+
+   useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString("en-GB"));
+  }, []);
 
   return (
 
@@ -22,19 +61,19 @@ export default function Home() {
 
           <ul className="text-white space-y-1">
             <li>Location : Sri Lanka-Galle</li>
-            <li>Date : 10/13/2026</li>
-            <li>Status : Available</li>
+            <li>Date : {currentDate}</li>
+            <li>Raiting : <span className="text-yellow-400 text-2xl">******</span></li>
           </ul>
 
-          <BookLink className="bg-amber-50 w-44 h-8 flex justify-center items-center rounded-2xl
-         hover:bg-blue-900 hover:text-white cursor-pointer mt-5"
-
-            status="Book"
-
-          />
+          <button className="bg-amber-50 w-44 h-8 flex justify-center items-center rounded-2xl
+         hover:bg-blue-900 hover:text-white cursor-pointer mt-5 active:translate-x-0.5 active:scale-95" onClick={checkReservationAvailable}>Book</button>
 
 
         </div>
+
+        {
+          showToast ? <ToastBar closeToast={() => setShowToast(false)} color={toastDetails?.status ? "#9afc95" : "#ffa099"} message={toastDetails?.message} visible={true} /> : <div></div>
+        }
 
 
 

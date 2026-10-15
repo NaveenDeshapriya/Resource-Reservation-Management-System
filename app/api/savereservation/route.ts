@@ -1,17 +1,15 @@
 import connection from "@/app/lib/db";
 import { getReservationNumber } from "@/app/util/randomReservationNumber";
+import { isEmail } from "@/app/util/validation";
 import { NextResponse } from "next/server";
 import { QueryResult } from "pg";
-import { Reservation } from "../../util/user";
 
 
 export async function POST(request: Request) {
 
     const requestBody: any = await request.json();
+    const { firstname, lastname, email, decideDate, details } = requestBody;
 
-
-    const { firstname, lastname, email, details } = requestBody;
-    const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (firstname == "") {
         return NextResponse.json({
@@ -28,13 +26,21 @@ export async function POST(request: Request) {
             "status": false,
             "message": "Enter email"
         });
-    } else if (!emailRegex.test(email)) {
+    } else if (!isEmail(email)) {
         return NextResponse.json({
             "status": false,
             "message": "Enter valid email"
         });
 
-    } else if (details == "") {
+    } else if (decideDate == "") {
+        return NextResponse.json({
+            "status": false,
+            "message": "Select Decide date"
+        });
+    }
+
+
+    else if (details == "") {
         return NextResponse.json({
             "status": false,
             "message": "Enter details"
@@ -42,15 +48,25 @@ export async function POST(request: Request) {
     } else {
 
         const reservationNumber: string = getReservationNumber();
-        const reservationDate: string = new Date().toLocaleString("en-US");
+        const reservationDate: string = new Date()
+            .toLocaleString("sv-SE", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            })
+            .replace(",", "");
+
         const booked: number = 1;
 
 
 
         try {
 
-            await connection.query("INSERT INTO reservation (reservation_no,first_name,last_name,email,detail,reservation_date,status_id) VALUES ($1,$2,$3,$4,$5,$6,$7)"
-                , [reservationNumber, firstname, lastname, email, details, reservationDate, booked]);
+            await connection.query("INSERT INTO reservation (reservation_no,first_name,last_name,email,detail,reservation_date,status_id,decide_date) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)"
+                , [reservationNumber, firstname, lastname, email, details, reservationDate, booked, decideDate]);
 
 
             return NextResponse.json({
@@ -75,15 +91,13 @@ export async function POST(request: Request) {
 
 export async function GET() {
 
-    let status: string = "Booked";
-
 
     try {
 
         const result: QueryResult = await connection.
-            query("SELECT * FROM reservation INNER JOIN status ON reservation.status_id=status.id ORDER BY status.type=$1 DESC", [status]);
+            query("SELECT * FROM reservation INNER JOIN status ON status_id=id ORDER BY CASE type WHEN 'Booked' THEN 1 WHEN 'Confirm' THEN 2 WHEN 'Cancel' THEN 3 WHEN 'Finished' THEN 4 ELSE 5 END ASC");
 
-        
+
 
         return NextResponse.json({
             "status": true,
